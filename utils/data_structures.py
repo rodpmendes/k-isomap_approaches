@@ -1249,6 +1249,24 @@ def confidence():
                }
     return (db_name, db, db_props)
 
+def olivetti_faces():
+    # ??????
+    # https://www.openml.org/d/41083
+    # number of features = 4097
+    # number of numeric features = 4096
+    # number of symbolic features = 1
+    
+    db_name = 'Olivetti_Faces'
+    db = skdata.fetch_openml(name=db_name, version=1)
+    db_props = {
+                 'name': db_name,
+                 'classes': len(db['target'].cat.categories),
+                 'samples_per_class': db['target'].value_counts().to_dict(),
+                 'samples_total': len(db['data']),
+                 'dimensionality': len(db['data'].columns)
+               }
+    return (db_name, db, db_props)
+
 def get_db_props(db_name):
     
     switch = {
@@ -1310,13 +1328,17 @@ def get_db_props(db_name):
         'backache': backache,
         'heart-statlog': heart_statlog,
         
-        
+        'Olivetti_Faces': olivetti_faces
     }
 
     return switch.get(db_name, lambda: print("Invalid data base"))()
 
 def get_data_list():
     data_list = []
+    
+    data_list.append( get_db_props('Olivetti_Faces') ) 
+    data_list.append( get_db_props('digits') )
+    return data_list
     
     
     data_list.append( get_db_props('tic-tac-toe') )
@@ -1351,7 +1373,6 @@ def get_data_list():
     # # # data_list.append( get_db_props('rabe_131') )
     # # # data_list.append( get_db_props('hayes-roth') )
     # # # data_list.append( get_db_props('diabetes') )
-    # # # data_list.append( get_db_props('digits') )
     
     # data bases with problems in 
     # RFE_NonLinearGradientBoostingMachines

@@ -35,7 +35,10 @@ import sklearn.neighbors as sknn
 from numpy.linalg import norm
 import networkx as nx
 
+from scipy.sparse.linalg import eigsh
+import torch
 
+import time
 
 # Supervised PCA implementation (variation from paper Supervised Principal Component Analysis - Pattern Recognition)
 def SupervisedPCA(dados, labels, d):
@@ -184,18 +187,19 @@ def SupervisedSelectKBest(data, labels):
 
 
 # ISOMAP-KL implementation
-def GeodesicIsomap(dados, k, d, target):
+def GeodesicIsomap(dados, k, d, target, use_np = False, use_gpu = False):
     
     n = dados.shape[0]
     m = dados.shape[1]
 
     # Componentes principais extraídos de cada patch (espaço tangente)
-    matriz_pcs = np.zeros((n, m, m))
+    matriz_pcs = np.zeros((n, m, m), dtype=np.float32)
     # Generate KNN graph
     knnGraph = sknn.kneighbors_graph(dados, n_neighbors=k, mode='connectivity')
     A = knnGraph.toarray()
     
     # Computes the means and covariance matrices for each patch
+    print('###### Computes the means and covariance matrices for each patch')
     for i in range(n):       
         vizinhos = A[i, :]
         indices = vizinhos.nonzero()[0]
@@ -203,11 +207,52 @@ def GeodesicIsomap(dados, k, d, target):
             matriz_pcs[i, :, :] = np.eye(m)    # Autovetores nas colunas
         else:
             amostras = dados[indices]
-            v, w = np.linalg.eig(np.cov(amostras.T))
+            
+            if use_np:
+                start_time = time.time()
+                v, w = np.linalg.eigh(np.cov(amostras.T))
+                np_time = time.time() - start_time
+                print('i', i, 'np_time', np_time)
+            elif use_gpu and torch.cuda.is_available():
+                start_time = time.time()
+                torch_gpu_matrix = torch.tensor(np.cov(amostras.T)).to("cuda")
+                torch_v, torch_w = torch.linalg.eigh(torch_gpu_matrix)
+                v = torch_v.cpu().numpy()
+                w = torch_w.cpu().numpy()
+                torch_gpu_time = time.time() - start_time
+                print('i', i, 'torch_gpu_time', torch_gpu_time)
+            else:
+                start_time = time.time()
+                torch_cpu_matrix = torch.tensor(np.cov(amostras.T))
+                torch_v, torch_w = torch.linalg.eigh(torch_cpu_matrix)
+                v = torch_v.cpu().numpy()
+                w = torch_w.cpu().numpy()
+                torch_cpu_time = time.time() - start_time
+                print('i', i, 'torch_cpu_time', torch_cpu_time)               
+            
+            #v_is_equal = np.allclose(v, np.sort(torch_v.cpu().numpy()))
+            #w_is_equal = np.allclose(w, np.sort(torch_w.cpu().numpy()))
+            #print('v is equal', v_is_equal)
+            #print('w is equal', w_is_equal)
+            
+            #is_symmetric = np.allclose(amostras, amostras.T)
+            # Calculate the sparsity ratio
+            #sparsity = 1.0 - (np.count_nonzero(amostras) / amostras.size)
+
+            # if is_symmetric and sparsity < .3:
+            #     v, w = np.linalg.eigh(np.cov(amostras.T))
+            # elif sparsity > .3:
+            #     v, w = np.linalg.eigsh(np.cov(amostras.T), k=5)
+            # else:
+            #     v, w = np.linalg.eig(np.cov(amostras.T))
+            
+            
             # Sort the eigenvalues
             ordem = v.argsort()
             # Select the d eigenvectors associated to the d largest eigenvalues
+            
             maiores_autovetores = w[:, ordem[::-1]]     # Esse é o oficial!
+            
             #maiores_autovetores = w[:, ordem[-1:]]      # Pega apenas os 2 primeiros (teste)
             # Projection matrix
             Wpca = maiores_autovetores  # Autovetores nas colunas
@@ -215,9 +260,12 @@ def GeodesicIsomap(dados, k, d, target):
             matriz_pcs[i, :, :] = Wpca
         
     # Defines the patch-based matrix (graph)
+    print('###### Defines the patch-based matrix (graph)')
     B = A.copy()
     for i in range(n):
+        start_time = time.time()
         for j in range(n):
+            start_time_j = time.time()
             if B[i, j] > 0:
                 #delta = 0
                 #delta = np.zeros(m)
@@ -236,8 +284,15 @@ def GeodesicIsomap(dados, k, d, target):
                     #B[i, j] = min(delta)*max(delta)    # Gaussian curvature
                     #B[i, j] = max(delta) - min(delta)
                     #print(B[i, j])
+            patch_based_time_j = time.time() - start_time_j
+            print('j', j, 'patch_based_time_j', patch_based_time_j)
+            
+        patch_based_time = time.time() - start_time
+        print('i', i, 'patch_based_time', patch_based_time)
+        
     
     # Computes geodesic distances in B
+    start_time = time.time()
     #G = nx.from_numpy_matrix(B)
     G = nx.from_numpy_array(B)
     D = nx.floyd_warshall_numpy(G)  
@@ -263,6 +318,9 @@ def GeodesicIsomap(dados, k, d, target):
     alphas = alphas[:, 0:d]
     # Computes the intrinsic coordinates
     output = alphas*np.sqrt(lambdas)
+    geodesic_distance_time = time.time() - start_time
+    print('geodesic_distance_time', geodesic_distance_time)
+    
     
     return output
 
@@ -312,3 +370,149 @@ def SupervisedDeepLearning(data, labels):
     transformed_data = autoencoder.predict(X_train_scaled)
     
     return transformed_data
+
+
+
+
+
+
+
+
+
+# ISOMAP-KL implementation
+def GeodesicIsomap_v2(dados, k, d, target, use_np = False, use_gpu = False):
+    
+    n = dados.shape[0]
+    m = dados.shape[1]
+
+    # Componentes principais extraídos de cada patch (espaço tangente)
+    matriz_pcs = np.zeros((n, m, m), dtype=np.float32)
+    # Generate KNN graph
+    knnGraph = sknn.kneighbors_graph(dados, n_neighbors=k, mode='connectivity')
+    A = knnGraph.toarray()
+    
+    # Computes the means and covariance matrices for each patch
+    print('###### Computes the means and covariance matrices for each patch')
+    for i in range(n):       
+        vizinhos = A[i, :]
+        indices = vizinhos.nonzero()[0]
+        if len(indices) == 0:   # Isolated points
+            matriz_pcs[i, :, :] = np.eye(m)    # Autovetores nas colunas
+        else:
+            amostras = dados[indices]
+            
+            if use_np:
+                start_time = time.time()
+                v, w = np.linalg.eigh(np.cov(amostras.T))
+                np_time = time.time() - start_time
+                print('i', i, 'np_time', np_time)
+            elif use_gpu and torch.cuda.is_available():
+                start_time = time.time()
+                torch_gpu_matrix = torch.tensor(np.cov(amostras.T)).to("cuda")
+                torch_v, torch_w = torch.linalg.eigh(torch_gpu_matrix)
+                v = torch_v.cpu().numpy()
+                w = torch_w.cpu().numpy()
+                torch_gpu_time = time.time() - start_time
+                print('i', i, 'torch_gpu_time', torch_gpu_time)
+            else:
+                start_time = time.time()
+                torch_cpu_matrix = torch.tensor(np.cov(amostras.T))
+                torch_v, torch_w = torch.linalg.eigh(torch_cpu_matrix)
+                v = torch_v.cpu().numpy()
+                w = torch_w.cpu().numpy()
+                torch_cpu_time = time.time() - start_time
+                print('i', i, 'torch_cpu_time', torch_cpu_time)               
+            
+            #v_is_equal = np.allclose(v, np.sort(torch_v.cpu().numpy()))
+            #w_is_equal = np.allclose(w, np.sort(torch_w.cpu().numpy()))
+            #print('v is equal', v_is_equal)
+            #print('w is equal', w_is_equal)
+            
+            #is_symmetric = np.allclose(amostras, amostras.T)
+            # Calculate the sparsity ratio
+            #sparsity = 1.0 - (np.count_nonzero(amostras) / amostras.size)
+
+            # if is_symmetric and sparsity < .3:
+            #     v, w = np.linalg.eigh(np.cov(amostras.T))
+            # elif sparsity > .3:
+            #     v, w = np.linalg.eigsh(np.cov(amostras.T), k=5)
+            # else:
+            #     v, w = np.linalg.eig(np.cov(amostras.T))
+            
+            
+            # Sort the eigenvalues
+            ordem = v.argsort()
+            # Select the d eigenvectors associated to the d largest eigenvalues
+            
+            maiores_autovetores = w[:, ordem[::-1]]     # Esse é o oficial!
+            
+            #maiores_autovetores = w[:, ordem[-1:]]      # Pega apenas os 2 primeiros (teste)
+            # Projection matrix
+            Wpca = maiores_autovetores  # Autovetores nas colunas
+            #print(Wpca.shape)
+            matriz_pcs[i, :, :] = Wpca
+        
+    # Defines the patch-based matrix (graph)
+    print('###### Defines the patch-based matrix (graph)')
+    B = A.copy()
+    for i in range(n):
+        start_time = time.time()
+        for j in range(n):
+            start_time_j = time.time()
+            if B[i, j] > 0:
+                #delta = 0
+                #delta = np.zeros(m)
+                #for k in range(m):
+                    #delta = delta + np.linalg.norm(matriz_pcs[i, :, k] - matriz_pcs[j, :, k])
+                    #delta[k] = np.linalg.norm(matriz_pcs[i, :, k] - matriz_pcs[j, :, k])
+                delta = norm(matriz_pcs[i, :, :] - matriz_pcs[j, :, :], axis=0)
+                #B[i, j] = delta
+                if target[i] == target[j]:
+                    B[i, j] = min(delta)
+                else:
+                    #B[i, j] = sum(delta)
+                    #B[i, j] = np.sum(delta)/len(delta)  # Mean curvature
+                    B[i, j] = max(delta)
+                    #B[i, j] = min(delta)
+                    #B[i, j] = min(delta)*max(delta)    # Gaussian curvature
+                    #B[i, j] = max(delta) - min(delta)
+                    #print(B[i, j])
+            patch_based_time_j = time.time() - start_time_j
+            print('j', j, 'patch_based_time_j', patch_based_time_j)
+            
+        patch_based_time = time.time() - start_time
+        print('i', i, 'patch_based_time', patch_based_time)
+        
+    
+    # Computes geodesic distances in B
+    start_time = time.time()
+    #G = nx.from_numpy_matrix(B)
+    G = nx.from_numpy_array(B)
+    D = nx.floyd_warshall_numpy(G)  
+    # Computes centering matrix H
+    H = np.eye(n, n) - (1/n)*np.ones((n, n))
+    # Computes the inner products matrix B
+    B = -0.5*H.dot(D**2).dot(H)
+    #print(np.isnan(B).any())
+    #print(np.isinf(B).any())
+    # Pode gerar nan ou inf na matriz B
+    # Remove infs e nans
+    maximo = np.nanmax(B[B != np.inf])   # encontra o maior elemento que não seja inf
+    B[np.isnan(B)] = 0
+    B[np.isinf(B)] = maximo
+    # Eigeendecomposition
+    lambdas, alphas = sp.linalg.eigh(B)
+    # Sort eigenvalues and eigenvectors
+    indices = lambdas.argsort()[::-1]
+    lambdas = lambdas[indices]
+    alphas = alphas[:, indices]
+    # Select the d largest eigenvectors
+    lambdas = lambdas[0:d]
+    alphas = alphas[:, 0:d]
+    # Computes the intrinsic coordinates
+    output = alphas*np.sqrt(lambdas)
+    geodesic_distance_time = time.time() - start_time
+    print('geodesic_distance_time', geodesic_distance_time)
+    
+    
+    return output

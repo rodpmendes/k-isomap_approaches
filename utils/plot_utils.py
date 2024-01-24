@@ -114,4 +114,4 @@ def HeatMapChartPlot(values, clf_labels, value_name, db_name, plot):
 
     plt.show()
     
-    plt.savefig(f'compare_dr_methods/results/grouped_bar.png', dpi=300, format='png' )
+    plt.savefig(f'results/grouped_bar.png', dpi=300, format='png' )

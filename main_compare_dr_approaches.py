@@ -7,6 +7,7 @@ Semi Supervised DR (Dimensionality Reduction) Methods
           Rodrigo Mendes
 """
 
+
 import unsupervised_dr as unsup_dr
 import supervised_dr as sup_dr
 import semi_supervised_dr as semisup_dr
@@ -21,6 +22,7 @@ from numpy import sqrt
 from sklearn import preprocessing
 from sklearn.preprocessing import LabelEncoder
 
+import time
 
 def main():
         
@@ -460,7 +462,328 @@ def main():
     input();
 
 
+def compare_supervised():
+            
+    # Load data
+    data_list = ds.get_data_list()
+
+    # Heat Map Plot Configuration
+    rows = 4
+    column = 3
+    index = 1
+    
+    # result objects
+    acc_values = []
+    kappa_values = []
+    table_results = []
+    round_decimals = 2
+
+    for db_name, db, db_props in data_list:
+        print(f'#################### db_name ####################')
+        print(f'db_name: {db_name}')
+        
+        acc_values = []
+        kappa_values = []
+        balanced_acc_values = []
+
+        X = db['data']
+        y = db['target']
+        
+        # Treat catregorical features (required for some OpenML datasets)
+        if not isinstance(X, np.ndarray):
+            cat_cols = X.select_dtypes(['category']).columns
+            X[cat_cols] = X[cat_cols].apply(lambda x: x.cat.codes)
+            # Convert to numpy array
+            X = X.to_numpy()
+            y = y.to_numpy()
+
+        if type(y[0]) == str:
+            label_encoder = LabelEncoder()
+            y = label_encoder.fit_transform(y)
+        
+        # Normalize data
+        X = preprocessing.scale(X)
+
+    
+        # Fit Sup K-ISOMAP
+        dr_technique = 'Sup K-ISOMAP'
+        n = X.shape[0]
+        nn = round(sqrt(n))
+        
+        start_time = time.time()
+        Y = sup_dr.GeodesicIsomap_v2(X, nn, 2, y, use_gpu=False)
+        torch_cpu_time = time.time() - start_time
+        print('---------------------------------------------')
+        print('Supervised K-Isomap CPU torch time', torch_cpu_time)
+        print('---------------------------------------------')
+        
+        
+        start_time = time.time()
+        Y = sup_dr.GeodesicIsomap_v2(X, nn, 2, y, use_gpu=True)
+        torch_gpu_time = time.time() - start_time
+        print('---------------------------------------------')
+        print('Supervised K-Isomap GPU torch time', torch_gpu_time)
+        print('---------------------------------------------')
+        
+        
+        start_time = time.time()
+        Y = sup_dr.GeodesicIsomap_v2(X, nn, 2, y, use_np=True)
+        np_cpu_time = time.time() - start_time
+        print('---------------------------------------------')
+        print('Supervised K-Isomap CPU NP time', np_cpu_time)
+        print('---------------------------------------------')
+        
+        
+        
+        classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+        
+        acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+        kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+        balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            
+        ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+        print(f'dr_technique: {dr_technique}')    
+        
+        
+        #Unsupervised LDA Non Components
+        # Fit LDAcompNone
+        dr_technique = 'LDAcompNone'
+        Y = unsup_dr.UnsupervisedLDANonComponents(X, y) #y is not optional ??
+        classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+        
+        acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+        kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+        balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+        
+        ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+        print(f'dr_technique: {dr_technique}')
+        
+        
+        # Fit LDA
+        dr_technique = 'LDA'
+        Y = sup_dr.SupervisedLDA(X, y)
+        classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+        
+        acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+        kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+        balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+        
+        ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+        print(f'dr_technique: {dr_technique}')
+        
+        
+        # Fit Supervised PCA
+        dr_technique = 'SUP PCA'
+        Y = sup_dr.SupervisedPCA(X, y, 2)
+        Y = Y.T
+        classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y.real, y)
+        
+        acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+        kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+        balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+        
+        ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+        print(f'dr_technique: {dr_technique}')
+        
+        
+        # Fit Supervised PLS Regression
+        dr_technique = 'PLS_Regression'
+        Y = sup_dr.SupervisedPLSRegression(X, y)
+        classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+        acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+        
+        kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+        balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+        
+        ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+        print(f'dr_technique: {dr_technique}')
+        
+            
+        
+        HeatMapChartPlot(acc_values, classifiers_labels, 'Accuracy', db_name, plot=(rows, column, index))
+        if index == 12:
+            index = 1
+        else:
+            index += 1
+        
+        HeatMapChartPlot(kappa_values, classifiers_labels, 'Kappa', db_name, plot=(rows, column, index))
+        if index == 12:
+            index = 1
+        else:
+            index += 1
+        
+        HeatMapChartPlot(balanced_acc_values, classifiers_labels, 'Balanced Acc', db_name, plot=(rows, column, index))
+        if index == 12:
+            index = 1
+        else:
+            index += 1
+
+        if 1==2:
+            GroupedBarChartPlot(acc_values, classifiers_labels, db_name, 'Accuracy')
+            GroupedBarChartPlot(kappa_values, classifiers_labels, db_name, 'Kappa')
+            GroupedBarChartPlot(balanced_acc_values, classifiers_labels, db_name, 'Balanced Acc')
+
+        
+
+        if 1 == 3:
+
+            
+            # Fit Supervised NCA
+            dr_technique = 'NCA'
+            Y = sup_dr.SupervisedNCA(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+            
+            # Fit Supervised RFE with Logist Regression
+            dr_technique = 'RFE_LogistReg'
+            Y = sup_dr.SupervisedLinearRFE_LogistReg(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+            
+            # Fit Supervised RFE with Linear regression
+            dr_technique = 'RFE_LinearReg'
+            Y = sup_dr.SupervisedLinearRFE_LinearReg(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+            
+            # Fit Supervised RFE with Linear SVC
+            dr_technique = 'RFE_LinearSVC'
+            Y = sup_dr.SupervisedLinearRFE_LinearSVC(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+            
+            # Fit Supervised RFE with Decision Trees
+            dr_technique = 'RFE_NonLinearDecisionTrees'
+            Y = sup_dr.SupervisedNonLinearRFE_DecisionTree(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+            
+            # Fit Supervised RFE with Random Forests
+            dr_technique = 'RFE_NonLinearRandomForests'
+            Y = sup_dr.SupervisedNonLinearRFE_RandomForest(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+            
+            # Fit Supervised RFE with Gradient Boosting Machines
+            dr_technique = 'RFE_NonLinearGradientBoostingMachines'
+            Y = sup_dr.SupervisedNonLinearRFE_GradientBoostingMachines(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+            
+            # Fit Supervised RFE with Neural Networks
+            # dr_technique = 'RFE_NonLinearMLP'
+            # Y = dr.SupervisedNonLinearRFE_MLP(X, y)
+            # classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            # acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            # kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            # ds.add_table_results(results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            
+            
+            #
+            # Fit Supervised SelectKBest
+            # not a Dimensionality Reduction
+            # ?? why it is here ??
+            #
+            # dr_technique = 'SelectKBest'
+            # Y = sup_dr.SupervisedSelectKBest(X, y)
+            # classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            # acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            # kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            # ds.add_table_results(results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            # print(f'dr_technique: {dr_technique}')
+            
+
+            # Fit Supervised Deep Learning (Test size 60%)
+            dr_technique = 'DeepLearning'
+            Y = sup_dr.SupervisedDeepLearning(X, y)
+            classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
+            acc_values.append( (np.round(acc, round_decimals), [dr_technique]) )
+            kappa_values.append( (np.round(kappa, round_decimals), [dr_technique]) )
+            balanced_acc_values.append( (np.round(balanced_acc, round_decimals), [dr_technique]) )
+            ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
+            print(f'dr_technique: {dr_technique}')
+            
+    ds.export_to_csv(table_results, 'table_results_20092023.csv')
+
+    #GroupedBarChartPlot(acc_values, acc_labels)
+    #GroupedBarChartPlot(kappa_values, acc_labels)
+
+    input();
 
 
+
+
+
+
+import sys
+from contextlib import contextmanager
+
+class Tee:
+    def __init__(self, file, terminal):
+        self.file = file
+        self.terminal = terminal
+
+    def write(self, message):
+        self.file.write(message)
+        self.terminal.write(message)
+
+    def flush(self):
+        self.file.flush()
+        self.terminal.flush()
+
+@contextmanager
+def tee_output(file_path):
+    with open(file_path, 'w') as file:
+        tee = Tee(file, sys.stdout)
+        sys.stdout = tee
+        try:
+            yield tee
+        finally:
+            sys.stdout = tee.terminal
+            
 if __name__ == "__main__":
-    main()
+    file_path = 'output.txt'
+
+    with tee_output(file_path) as tee:
+        compare_supervised()
+        #main()
+
+
+
+
+
