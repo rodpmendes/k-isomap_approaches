@@ -477,8 +477,8 @@ def GeodesicIsomap_v2(dados, k, d, target, use_np = False, use_gpu = False):
                     #B[i, j] = min(delta)*max(delta)    # Gaussian curvature
                     #B[i, j] = max(delta) - min(delta)
                     #print(B[i, j])
-            patch_based_time_j = time.time() - start_time_j
-            print('j', j, 'patch_based_time_j', patch_based_time_j)
+            #patch_based_time_j = time.time() - start_time_j
+            #print('j', j, 'patch_based_time_j', patch_based_time_j)
             
         patch_based_time = time.time() - start_time
         print('i', i, 'patch_based_time', patch_based_time)

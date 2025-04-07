@@ -23,6 +23,7 @@ from sklearn import preprocessing
 from sklearn.preprocessing import LabelEncoder
 
 import time
+from datetime import datetime
 
 def main():
         
@@ -454,7 +455,7 @@ def main():
             #HeatMapChartPlot(kappa_values, classifiers_labels, 'Kappa', db_name, plot=(rows, column, index))
             #index += 1
 
-    ds.export_to_csv(table_results, 'table_results_20092023.csv')
+    ds.export_to_csv(table_results, ('table_results_'+ datetime.now().strftime("%Y%m%d_%H%M%S") +'.csv'))
 
     #GroupedBarChartPlot(acc_values, acc_labels)
     #GroupedBarChartPlot(kappa_values, acc_labels)
@@ -467,11 +468,7 @@ def compare_supervised():
     # Load data
     data_list = ds.get_data_list()
 
-    # Heat Map Plot Configuration
-    rows = 4
-    column = 3
-    index = 1
-    
+   
     # result objects
     acc_values = []
     kappa_values = []
@@ -510,30 +507,13 @@ def compare_supervised():
         n = X.shape[0]
         nn = round(sqrt(n))
         
-        # start_time = time.time()
-        # Y = sup_dr.GeodesicIsomap_v2(X, nn, 2, y, use_gpu=False)
-        # torch_cpu_time = time.time() - start_time
-        # print('---------------------------------------------')
-        # print('Supervised K-Isomap CPU torch time', torch_cpu_time)
-        # print('---------------------------------------------')
-        
-        
         start_time = time.time()
         Y = sup_dr.GeodesicIsomap_v2(X, nn, 2, y, use_gpu=True)
         torch_gpu_time = time.time() - start_time
         print('---------------------------------------------')
         print('Supervised K-Isomap GPU torch time', torch_gpu_time)
         print('---------------------------------------------')
-        
-        
-        # start_time = time.time()
-        # Y = sup_dr.GeodesicIsomap_v2(X, nn, 2, y, use_np=True)
-        # np_cpu_time = time.time() - start_time
-        # print('---------------------------------------------')
-        # print('Supervised K-Isomap CPU NP time', np_cpu_time)
-        # print('---------------------------------------------')
-        
-        
+
         
         classifiers_labels, acc, kappa, balanced_acc = mycls.myClassification(Y, y)
         
@@ -738,7 +718,7 @@ def compare_supervised():
             ds.add_table_results(table_results, db_props, dr_technique, classifiers_labels, acc, kappa, balanced_acc)
             print(f'dr_technique: {dr_technique}')
             
-    ds.export_to_csv(table_results, 'table_results_20092023.csv')
+    ds.export_to_csv(table_results, ('table_results_'+ datetime.now().strftime("%Y%m%d_%H%M%S") +'.csv'))
 
     #GroupedBarChartPlot(acc_values, acc_labels)
     #GroupedBarChartPlot(kappa_values, acc_labels)
@@ -753,7 +733,7 @@ def compare_supervised():
 import sys
 from contextlib import contextmanager
 
-class Tee:
+class Log:
     def __init__(self, file, terminal):
         self.file = file
         self.terminal = terminal
@@ -767,19 +747,19 @@ class Tee:
         self.terminal.flush()
 
 @contextmanager
-def tee_output(file_path):
+def log_output(file_path):
     with open(file_path, 'w') as file:
-        tee = Tee(file, sys.stdout)
-        sys.stdout = tee
+        log = Log(file, sys.stdout)
+        sys.stdout = log
         try:
-            yield tee
+            yield log
         finally:
-            sys.stdout = tee.terminal
+            sys.stdout = log.terminal
             
 if __name__ == "__main__":
-    file_path = 'output.txt'
+    file_path = ('log_output_'+ datetime.now().strftime("%Y%m%d_%H%M%S") +'.txt')
 
-    with tee_output(file_path) as tee:
+    with log_output(file_path) as tee:
         compare_supervised()
         #main()
 

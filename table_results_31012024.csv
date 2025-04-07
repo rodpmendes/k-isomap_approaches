@@ -1,0 +1,9 @@
+,name,classes,samples_per_class,samples_total,dimensionality,dr_name,dr_learning,dr_transformation,dr_structure,clf_name,clf_accuracy,clf_kappa,clf_balanced_accuracy
+1,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,KNN,0.9887640449438202,0.9828615443866744,0.9901960784313726
+2,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,SMV,0.9887640449438202,0.9828615443866744,0.9901960784313726
+3,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Naive Bayes,0.9887640449438202,0.9828615443866744,0.9901960784313726
+4,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Decision Tree,0.9662921348314607,0.948821161587119,0.9705882352941176
+5,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Quadratic Discriminant,0.9887640449438202,0.9828615443866744,0.9901960784313726
+6,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,MPL Classifier,0.9887640449438202,0.9828615443866744,0.9901960784313726
+7,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Gaussian Process,0.9887640449438202,0.9828615443866744,0.9901960784313726
+8,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Random Forest Classifier,0.9662921348314607,0.948821161587119,0.9705882352941176

@@ -1,0 +1,41 @@
+,name,classes,samples_per_class,samples_total,dimensionality,dr_name,dr_learning,dr_transformation,dr_structure,clf_name,clf_accuracy,clf_kappa,clf_balanced_accuracy
+1,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,KNN,0.9887640449438202,0.9828615443866744,0.9901960784313726
+2,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,SMV,0.9887640449438202,0.9828615443866744,0.9901960784313726
+3,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Naive Bayes,0.9887640449438202,0.9828615443866744,0.9901960784313726
+4,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Decision Tree,0.9662921348314607,0.948821161587119,0.9705882352941176
+5,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Quadratic Discriminant,0.9887640449438202,0.9828615443866744,0.9901960784313726
+6,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,MPL Classifier,0.9887640449438202,0.9828615443866744,0.9901960784313726
+7,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Gaussian Process,0.9887640449438202,0.9828615443866744,0.9901960784313726
+8,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,Sup K-ISOMAP,learning.supervised,transformation.nonlinear,structure.local_structure,Random Forest Classifier,0.9662921348314607,0.948821161587119,0.9705882352941176
+9,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,KNN,1.0,1.0,1.0
+10,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,SMV,1.0,1.0,1.0
+11,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,Naive Bayes,1.0,1.0,1.0
+12,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,Decision Tree,0.9887640449438202,0.9828615443866744,0.9901960784313726
+13,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,Quadratic Discriminant,1.0,1.0,1.0
+14,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,MPL Classifier,1.0,1.0,1.0
+15,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,Gaussian Process,1.0,1.0,1.0
+16,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDAcompNone,learning.unsupervised,transformation.linear,structure.global_structure,Random Forest Classifier,0.9887640449438202,0.9828615443866744,0.9901960784313726
+17,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,KNN,1.0,1.0,1.0
+18,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,SMV,1.0,1.0,1.0
+19,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,Naive Bayes,1.0,1.0,1.0
+20,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,Decision Tree,0.9887640449438202,0.9828615443866744,0.9901960784313726
+21,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,Quadratic Discriminant,1.0,1.0,1.0
+22,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,MPL Classifier,1.0,1.0,1.0
+23,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,Gaussian Process,1.0,1.0,1.0
+24,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,LDA,learning.supervised,transformation.linear,structure.global_structure,Random Forest Classifier,0.9887640449438202,0.9828615443866744,0.9901960784313726
+25,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,KNN,0.9887640449438202,0.9828549412444616,0.98989898989899
+26,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,SMV,0.9775280898876404,0.9657164869029276,0.9800950683303625
+27,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,Naive Bayes,0.9662921348314607,0.9485648237333847,0.9699940582293524
+28,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,Decision Tree,0.9213483146067416,0.8804452120514297,0.9298871063576946
+29,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,Quadratic Discriminant,0.9887640449438202,0.9828615443866744,0.9901960784313726
+30,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,MPL Classifier,0.9662921348314607,0.9485648237333847,0.9699940582293524
+31,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,Gaussian Process,0.9775280898876404,0.9657164869029276,0.9800950683303625
+32,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,SUP PCA,learning.supervised,transformation.linear,structure.global_structure,Random Forest Classifier,0.9550561797752809,0.9315516246875601,0.9598930481283423
+33,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,KNN,0.9550561797752809,0.9314065510597302,0.9548425430778372
+34,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,SMV,0.9438202247191011,0.9142416650607054,0.9447415329768271
+35,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,Naive Bayes,0.898876404494382,0.8456944712001542,0.9052287581699346
+36,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,Decision Tree,0.8876404494382022,0.8285163776493256,0.8900772430184195
+37,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,Quadratic Discriminant,0.9550561797752809,0.9310878823073945,0.9494949494949495
+38,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,MPL Classifier,0.9438202247191011,0.9136592937524253,0.9343434343434344
+39,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,Gaussian Process,0.9325842696629213,0.8968514583735754,0.9295900178253119
+40,wine,3,"{'class_0': 59, 'class_1': 71}",178,13,PLS_Regression,learning.supervised,transformation.linear,structure.global_structure,Random Forest Classifier,0.9662921348314607,0.9486933128362798,0.9702911467617351

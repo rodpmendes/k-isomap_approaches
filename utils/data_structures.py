@@ -1336,9 +1336,21 @@ def get_db_props(db_name):
 def get_data_list():
     data_list = []
     
+    data_list.append( get_db_props('wine') )
+    
+    data_list.append( get_db_props('pwLinear') )
+    data_list.append( get_db_props('breast_cancer') )
+    
+    data_list.append( get_db_props('backache') )
+    data_list.append( get_db_props('heart-statlog') )
+    
+    
+    
+    
+    
     data_list.append( get_db_props('Olivetti_Faces') ) 
     data_list.append( get_db_props('digits') )
-    return data_list
+    
     
     
     data_list.append( get_db_props('tic-tac-toe') )
@@ -1389,7 +1401,7 @@ def get_data_list():
     data_list.append( get_db_props('iris') )
     data_list.append( get_db_props('prnn_crabs') )
     data_list.append( get_db_props('balance-scale') )
-    data_list.append( get_db_props('parity5') ) 
+    #erro data_list.append( get_db_props('parity5') ) 
     data_list.append( get_db_props('servo') )
     data_list.append( get_db_props('monks-problems-1') )
     data_list.append( get_db_props('bolts') )
@@ -1402,17 +1414,12 @@ def get_data_list():
     data_list.append( get_db_props('datatrieve') )
     data_list.append( get_db_props('diggle_table_a2') )
     data_list.append( get_db_props('fl2000') )
-    data_list.append( get_db_props('triazines') )
+    #erro data_list.append( get_db_props('triazines') )
+    
     data_list.append( get_db_props('veteran') )
     data_list.append( get_db_props('car') )
     data_list.append( get_db_props('prnn_fglass') )
-    data_list.append( get_db_props('analcatdata_creditscore') )
-    data_list.append( get_db_props('pwLinear') )
-    data_list.append( get_db_props('breast_cancer') )
-    data_list.append( get_db_props('wine') )
-    data_list.append( get_db_props('backache') )
-    data_list.append( get_db_props('heart-statlog') )
-    
+    #erro data_list.append( get_db_props('analcatdata_creditscore') )
     
     
     
